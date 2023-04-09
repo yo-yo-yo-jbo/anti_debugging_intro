@@ -227,3 +227,13 @@ lblCleanup:
 	return bResult;
 }
 ```
+
+Similarly, in Linux you'll find the `PT_GETDBREGS` flag for [ptrace](https://man7.org/linux/man-pages/man2/ptrace.2.html) that does essentially the same thing.
+
+## Summary
+This was a nice introduction to anti-debugging tricks, and gives some ideas about how someone coding such a thing might think.  
+There are way more techniques than I mentioned here, but I think the general idea is clear.
+
+Thanks!
+
+Jonathan Bar Or
