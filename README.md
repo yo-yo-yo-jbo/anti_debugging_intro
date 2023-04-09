@@ -33,6 +33,21 @@ BOOL __stdcall IsDebuggerPresent()
 ```
 
 That's quite interesting! If you recall, I mentioned the PEB [here](https://github.com/yo-yo-yo-jbo/msf_shellcode_analysis/), but I'll save you a click or two: every process in Windows has some memory structure in its address space called the [PEB](https://learn.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb), which saves useful information about the process in userspace. This is useful because the process doesn't have to talk to the kernel when it wants to get that information.  
-In 32-bit systems, the PEB is pointed by `fs:30h` and in 64-bit: `gs:60h`. Moreover, the [PEB structure](https://learn.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb) clearly states that the 3rd byte (i.e. offset 2 from the start) is the `BeingDebugged` flag, and indeed we see a dereference (`mozx   eax, byte ptr [rax+2]`).
+In 32-bit systems, the PEB is pointed by `fs:30h` and in 64-bit: `gs:60h`. Moreover, the [PEB structure](https://learn.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb) clearly states that the 3rd byte (i.e. offset 2 from the start) is the `BeingDebugged` flag, and indeed we see a dereference (`mozx   eax, byte ptr [rax+2]`).  
+Therefore, if you're coding your own shellcode, an easy Windows-specific trick is checking that value straight from the PEB:
 
+```assembly
+_start:
+	mov      rax, gs:60h
+	movzx    eax, byte ptr [rax+2]
+	test     eax, eax
+	jnz      lbl_hang
+
+' Rest of shellcode true logic comes here
+
+lbl_hang:
+	jmp lbl_hang
+```
+
+Of course, there are other Windows-specific 
 
