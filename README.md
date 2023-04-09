@@ -161,3 +161,31 @@ Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
 
 Another Linux-specific concept (that could be achieved under Windows too) is *self-debugging*. Abusing the fact that a process can only be debugged once, self-debugging simply stops another debugger from being attached. Simply call `ptrace(PTRACE_TRACEME, 0, 1, 0)`.
 
+## Intel-specific techniques
+Those techniques are not OS-specific (but are architecture specific). I will mention two here, and explain by example.
+
+### Looking for breakpoints
+Setting a `debugger breakpoint` on Intel architectures actually patches the code - it adds an `int 3` instruction.  
+Interrupt 3 is a debug breakpoint, and takes one opcode with no operands, encoded as `0xCC`. Therefore, looking for `0xCC` makes sense. Here is a quick example:
+
+```assembly
+0x0000000000000000:  E8 00 00 00 00          call        5
+0x0000000000000005:  5F                      pop         rdi
+0x0000000000000006:  48 C7 C1 00 02 00 00    mov         rcx, 0x200
+0x000000000000000d:  FC                      cld         
+0x000000000000000e:  B0 CB                   mov         al, 0xcb
+0x0000000000000010:  FE C0                   inc         al
+0x0000000000000012:  F2 AE                   repne scasb al, byte ptr [rdi]
+0x0000000000000014:  67 E3 02                jecxz       0x19
+0x0000000000000017:  EB FE                   jmp         0x17
+			...
+```
+
+What's going on here? Let's analyze line by line:
+- The first two lines are an easy `call-pop` shellcode trick - basically `rdi` gets the address of the shellcode (plus 5 instructions in).
+- Next, we set the stage for a string operation: `rcx` has the shellcode length (I just chose `0x200` at random), the direction flag is cleared and `al` is being set. Note we set `al` to be `0xCB` and then increase it by one to get `0xCC`. More on that later.
+- We call `repne scasb`, which will look for `al` (`0xCC` byte) starting `rdi` (where the shellcode starts) for `rcx` (`0x200`) bytes.
+- We use the `jecxz` instruction to jump if `ecx` is zero, which is should be unless we found a `0xCC` byte.
+- If we do not jump - we hang in an endless loop at offset `0x17`.
+
+Why did we set `al` to be `0xCB` and increase it instead of setting it directly to `0xCC`? Well, Note that `mov al, 0xcc` is encoded as `B0 CC`, so our "int 3 detection" would definitely detect a `0xCC` byte there, so that's a necessity.
