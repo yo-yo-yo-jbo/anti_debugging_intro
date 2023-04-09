@@ -12,6 +12,9 @@ The quickest way (for me at least) to reverse-engineer a payload is combination 
 This blogpost aims to describe one particular aspect of an anti-dynamic-analysis: behave differently when being debugged, also known as *anti-debugging*.  
 Note this is only an introduction-level blogpost - by no means is this a complete list of techniques.
 
+It is important to note that *anti-debugging tricks are not bulletproof* - they can certainly slow down a researcher but will not be bullet-proof.  
+In fact, some security products will actually flag binaries that use anti-debugging tricks since *they are more suspicious*, so keep that in mind!
+
 ## OS specific
 If you come from a Windows background, you might be familiar with the [IsDebuggerPresent](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-isdebuggerpresent) WinAPI. Of course, the payload author could just invoke that API (if it's a shellcode then they'd need to resolve `kernel32.dll` before).  
 Of course, sometimes it's useful to see how the API is implemented. Looking at `kernel32.dll` export of `IsDebuggerPresent` we see it's imported from `api-ms-win-core-debug-l1-1-0`, which is an [API set schema DLL](https://www.geoffchappell.com/studies/windows/win32/apisetschema/index.htm), which eventually leads to `kernelbase.dll`.  
