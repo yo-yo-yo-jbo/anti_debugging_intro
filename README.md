@@ -198,3 +198,4 @@ However, Intel supports *hardware debugging*, which is usually translated to set
 - In `gdb` you'll find that in the `watch` and `rwatch` commands.
 - In `Visual Studio` you'll find an option to add a `data breakpoint`.
 
+Hardware breakpoints are implemented in specialized [debug registers](https://en.wikipedia.org/wiki/X86_debug_register). It's not necessary to dive into the bits and bytes of them - just to know that they reflect the state of hardware breakpoints.
