@@ -64,5 +64,6 @@ Additionally, there are tricks that are more indirect - for example, checking th
 - The Intel `rdtsc` and `rdpmc` instructions can retrieve timestamps, and can be used just like those timing-based APIs.
 - [QueryPerformanceCounter](https://learn.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter) can indicate timing differences as well.
 
-Lastly, there are tool-specific heuristics. For example, using the [FindWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowa) API can indicate if a debugger window is open (e.g. looking for `x64dbg`, `IDA`, `Windbg` and so on).
-
+Lastly, there are tool-specific heuristics:
+- The [FindWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowa) API can indicate if a debugger window is open (e.g. looking for `x64dbg`, `IDA`, `Windbg` and so on).
+- Similarly, looking for specific debugging processes (e.g. with [CreateToolhelp32Snapshot](https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot) API) can indicate whether we are being debugged or not.
