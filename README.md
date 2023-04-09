@@ -43,11 +43,15 @@ _start:
 	test     eax, eax
 	jnz      lbl_hang
 
-' Rest of shellcode true logic comes here
+; ...
+; Rest of shellcode true logic comes here
+; ...
 
 lbl_hang:
 	jmp lbl_hang
 ```
 
-Of course, there are other Windows-specific 
-
+Of course, there are other Windows-specific debugging-aware APIs that can be useful (not a complete list by any means):
+- [CheckRemoteDebuggerPresent](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-checkremotedebuggerpresent) - similar to `IsDebuggerPresent` but implemented a bit differently.
+- [OutputDebugString](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-outputdebugstringa) yields result (in `rax`) differently - if a debugger is present it'd be non-zero, otherwise it will not change `rax`.
+- [NtQueryInformationProcess](https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess) can be invoked on self-process and retrieve the `PEB` (with the `ProcessBasicInformation` information class) or even indicate debug ports (with the `ProcessDebugPort` information class).
