@@ -189,3 +189,12 @@ What's going on here? Let's analyze line by line:
 - If we do not jump - we hang in an endless loop at offset `0x17`.
 
 Why did we set `al` to be `0xCB` and increase it instead of setting it directly to `0xCC`? Well, Note that `mov al, 0xcc` is encoded as `B0 CC`, so our "int 3 detection" would definitely detect a `0xCC` byte there, so that's a necessity.
+
+Of course, similar things can be done in highlevel code - not just assembly.
+
+### Looking for hardware debug breakpoints
+The debug breakpoint we saw so far is implemented in software (`int 3` is a *software interrupt*).  
+However, Intel supports *hardware debugging*, which is usually translated to setting a breakpoint on read or write:
+- In `gdb` you'll find that in the `watch` and `rwatch` commands.
+- In `Visual Studio` you'll find an option to add a `data breakpoint`.
+
