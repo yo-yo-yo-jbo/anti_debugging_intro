@@ -158,3 +158,6 @@ Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
 1
 [Inferior 1 (process 161) exited normally]
 ```
+
+Another Linux-specific concept (that could be achieved under Windows too) is *self-debugging*. Abusing the fact that a process can only be debugged once, self-debugging simply stops another debugger from being attached. Simply call `ptrace(PTRACE_TRACEME, 0, 1, 0)`.
+
