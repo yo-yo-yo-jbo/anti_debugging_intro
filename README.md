@@ -67,3 +67,62 @@ Additionally, there are tricks that are more indirect - for example, checking th
 Lastly, there are tool-specific heuristics:
 - The [FindWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowa) API can indicate if a debugger window is open (e.g. looking for `x64dbg`, `IDA`, `Windbg` and so on).
 - Similarly, looking for specific debugging processes (e.g. with [CreateToolhelp32Snapshot](https://learn.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot) API) can indicate whether we are being debugged or not.
+
+## OS-specific: Linux
+Linux anti-debugging tricks share some commonalities with Windows.  
+The approaches of checking the time and looking for process names dynamically are similar and I won't be covering them (easy to implement).  
+Checking the `PEB` on Windows is kind of equivalent to checking the process status on Linux (`/proc/self/status`) and looking for the `TracerPid` which marks the debugger process ID:
+
+```c
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define BUF_LEN (4096)
+#define TRACER_MARKER ("TracerPid:")
+
+int
+is_being_debugged(void)
+{
+        int result = 0;
+        FILE* fp = NULL;
+        char buf[BUF_LEN] = { 0 };
+        char* tracer_pid = NULL;
+
+        // Open the status file
+        fp = fopen("/proc/self/status", "r");
+        if (NULL == fp)
+        {
+                goto cleanup;
+        }
+
+        // Read the file line-by-line
+        while (fgets(buf, sizeof(buf), fp))
+        {
+                tracer_pid = strstr(buf, TRACER_MARKER);
+                if (NULL != tracer_pid)
+                {
+                        result = (0 != atol(tracer_pid + strlen(TRACER_MARKER)));
+                        break;
+                }
+        }
+
+cleanup:
+
+        // Cleanup
+        if (NULL != fp)
+        {
+                fclose(fp);
+                fp = NULL;
+        }
+
+        // Return result
+        return result;
+}
+
+int main()
+{
+        printf("%d\n", is_being_debugged());
+        return 0;
+}
+```
