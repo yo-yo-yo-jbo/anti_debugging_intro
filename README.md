@@ -126,3 +126,35 @@ int main()
         return 0;
 }
 ```
+
+And we can run with and without `gdb` for comparison:
+```shell
+┌──(jbo@linjbo)-[/tmp/debugging]
+└─$ ./is_debugged
+0
+
+┌──(jbo@linjbo)-[/tmp/debugging]
+└─$ gdb -ex "r" -ex "q" ./is_debugged
+GNU gdb (Debian 12.1-4+b1) 12.1
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./is_debugged...
+(No debugging symbols found in ./is_debugged)
+Starting program: /tmp/is_debugged
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+1
+[Inferior 1 (process 161) exited normally]
+```
