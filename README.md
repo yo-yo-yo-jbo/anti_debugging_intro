@@ -56,10 +56,13 @@ lbl_hang:
 
 Of course, there are other Windows-specific debugging-aware APIs that can be useful (not a complete list by any means):
 - [CheckRemoteDebuggerPresent](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-checkremotedebuggerpresent) - similar to `IsDebuggerPresent` but implemented a bit differently.
-- [OutputDebugString](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-outputdebugstringa) yields result (in `rax`) differently - if a debugger is present it'd be non-zero, otherwise it will not change `rax`.
+- [OutputDebugString](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-outputdebugstringa) yields result (in `rax`) differently - if a debugger is present it'd be a valid address in the process address space, otherwise it gets 0 or 1 (depending on the OS version).
 - [NtQueryInformationProcess](https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess) can be invoked on self-process and retrieve the `PEB` (with the `ProcessBasicInformation` information class) or even indicate debug ports (with the `ProcessDebugPort` information class).
 
 Additionally, there are tricks that are more indirect - for example, checking the time that it takes to run instructions:
 - [GetLocalTime](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlocaltime), [GetSystemTime](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtime), [GetTickCount](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-gettickcount) and others can be used twice - one to take a start time and one to take a finishing time. This will give us a `time delta` - if it's greater than a certain value then it's possible our payload is being debugged.
 - The Intel `rdtsc` and `rdpmc` instructions can retrieve timestamps, and can be used just like those timing-based APIs.
 - [QueryPerformanceCounter](https://learn.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter) can indicate timing differences as well.
+
+Lastly, there are tool-specific heuristics. For example, using the [FindWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-findwindowa) API can indicate if a debugger window is open (e.g. looking for `x64dbg`, `IDA`, `Windbg` and so on).
+
