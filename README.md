@@ -202,3 +202,28 @@ Hardware breakpoints are implemented in specialized [debug registers](https://en
 - It's not necessary to dive into the bits and bytes of them - just to know that they reflect the state of hardware breakpoints.
 - One cannot access those debug registers from userland - accessing them is only permitted from `ring 0` (kernel).
 
+Because those debug registers aren't accessible from userland - we must call some API to access them. For example [GetThreadContext](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadcontext) in Windows:
+
+```c
+static
+BOOL
+IsDebugged(VOID)
+{
+	BOOL bResult = FALSE;
+	CONTEXT tThreadContext = { 0 };
+
+	// Get self-context
+	tThreadContext.ContextFlags = CONTEXT_DEBUG_REGISTERS;
+	if (!GetThreadContext(GetCurrentThread(), &tThreadContext))
+	{
+		goto lblCleanup;
+	}
+
+	// Access debug registers
+	bResult = (tThreadContext.Dr7 != 0);
+
+lblCleanup:
+
+	return bResult;
+}
+```
