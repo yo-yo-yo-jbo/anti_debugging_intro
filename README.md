@@ -15,7 +15,7 @@ Note this is only an introduction-level blogpost - by no means is this a complet
 It is important to note that *anti-debugging tricks are not bulletproof* - they can certainly slow down a researcher but will not be bullet-proof.  
 In fact, some security products will actually flag binaries that use anti-debugging tricks since *they are more suspicious*, so keep that in mind!
 
-## OS specific
+## OS specific - Windows
 If you come from a Windows background, you might be familiar with the [IsDebuggerPresent](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-isdebuggerpresent) WinAPI. Of course, the payload author could just invoke that API (if it's a shellcode then they'd need to resolve `kernel32.dll` before).  
 Of course, sometimes it's useful to see how the API is implemented. Looking at `kernel32.dll` export of `IsDebuggerPresent` we see it's imported from `api-ms-win-core-debug-l1-1-0`, which is an [API set schema DLL](https://www.geoffchappell.com/studies/windows/win32/apisetschema/index.htm), which eventually leads to `kernelbase.dll`.  
 Well, let's examine the `IsDebuggerPresent` implementation:
@@ -58,3 +58,8 @@ Of course, there are other Windows-specific debugging-aware APIs that can be use
 - [CheckRemoteDebuggerPresent](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-checkremotedebuggerpresent) - similar to `IsDebuggerPresent` but implemented a bit differently.
 - [OutputDebugString](https://learn.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-outputdebugstringa) yields result (in `rax`) differently - if a debugger is present it'd be non-zero, otherwise it will not change `rax`.
 - [NtQueryInformationProcess](https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess) can be invoked on self-process and retrieve the `PEB` (with the `ProcessBasicInformation` information class) or even indicate debug ports (with the `ProcessDebugPort` information class).
+
+Additionally, there are tricks that are more indirect - for example, checking the time that it takes to run instructions:
+- [GetLocalTime](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getlocaltime), [GetSystemTime](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtime), [GetTickCount](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-gettickcount) and others can be used twice - one to take a start time and one to take a finishing time. This will give us a `time delta` - if it's greater than a certain value then it's possible our payload is being debugged.
+- The Intel `rdtsc` and `rdpmc` instructions can retrieve timestamps, and can be used just like those timing-based APIs.
+- [QueryPerformanceCounter](https://learn.microsoft.com/en-us/windows/win32/api/profileapi/nf-profileapi-queryperformancecounter) can indicate timing differences as well.
