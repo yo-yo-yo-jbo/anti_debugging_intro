@@ -2,7 +2,7 @@
 
 Following my [shellcode analysis blogpost](https://github.com/yo-yo-yo-jbo/msf_shellcode_analysis/) I felt the need to talk a bit more about shellcodes.  
 One of the things an attacker might do is decide they don't wish to be analyzed. When we talk about analysis (reverse-engineering) there are generally two forms:
-- Static analysis: examining the code without running it, usually involved a disassembler.
+- Static analysis: examining the code without running it, usually involves a disassembler.
 - Dynamic analysis: running the payload in a debugging environment, following the payload flow, setting up breakpoints and so on.
 
 The quickest way (for me at least) to reverse-engineer a payload is combination of both. However, there are some hurdles along the way:
