@@ -5,7 +5,7 @@ One of the things an attacker might do is decide they don't wish to be analyzed.
 - Static analysis: examining the code without running it, usually involves a disassembler.
 - Dynamic analysis: running the payload in a debugging environment, following the payload flow, setting up breakpoints and so on.
 
-The quickest way (for me at least) to reverse-engineer a payload is combination of both. However, there are some hurdles along the way:
+The quickest way (for me at least) to reverse-engineer a payload is to combine both. However, there are some hurdles along the way:
 - For *static analysis*, the code author might decide to *obfuscate* the code - adding nonesense instructions, using a decryption key for the code, using [packing solutions](https://en.wikipedia.org/wiki/UPX) and even running the code in a [designated virtual machine](https://en.wikipedia.org/wiki/Denuvo).
 - For *dynamic analysis*, the code author might decide to check the environment and behave differently based on it.
 
@@ -26,7 +26,7 @@ movzx    eax, byte ptr [rax+2]
 ret
 ```
 
-The IDA decompiler pains an even nicer picture:
+The IDA decompiler paints an even nicer picture:
 
 ```c
 BOOL __stdcall IsDebuggerPresent()
